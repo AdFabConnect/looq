@@ -24,7 +24,11 @@
                 "css/style.css"
             ],
             "js": [
-                "js/app.js"
+                "js/rangy-core.js",
+				"js/rangy-cssclassapplier.js",
+				"js/rangy-selectionsaverestore.js",
+				"js/rangy-serializer.js",
+                "js/looq.js"
             ]
         }
     ],

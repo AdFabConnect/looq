@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script src="js/rangy-core.js"></script>
+		<script src="js/rangy-cssclassapplier.js"></script>
+		<script src="js/rangy-selectionsaverestore.js"></script>
+		<script src="js/rangy-serializer.js"></script>
+		<script type="text/javascript">
+		
+		function surroundSelectedText(templateElement){
+		    var range, sel = rangy.getSelection();
+		    var ranges = sel.getAllRanges();
+		    var textNodes, textNode, el, i, len, j, jLen;
+		    for (i = 0, len = ranges.length; i < len; ++i) {
+		        range = ranges[i];
+		        // If one or both of the range boundaries falls in the middle
+		        // of a text node, the following line splits the text node at the
+		        // boundary
+		        range.splitBoundaries();
+		
+		        // The first parameter below is an array of valid nodeTypes
+		        // (in this case, text nodes only)
+		        textNodes = range.getNodes([3]);
+		
+		        for (j = 0, jLen = textNodes.length; j < jLen; ++j) {
+		            textNode = textNodes[j];
+		            el = templateElement.cloneNode(false);
+		            textNode.parentNode.insertBefore(el, textNode);
+		            el.appendChild(textNode);
+		        }
+		    }
+		}
+		console.debug(rangy.getSelection())
+		
+		document.addEventListener('mouseup', function(e)
+		{
+			var oldNodes = document.querySelectorAll('.looq-highlightq-text');
+			
+			for(var i in oldNodes) {
+			    if(typeof oldNodes[i] === 'object') {
+					console.debug(oldNodes[i]);
+			        oldNodes[i].className = oldNodes[i].className.replace(/looq-highlightq-text/, '');
+			    }
+			}
+
+			var span = document.createElement("span");
+			span.className = "looq-highlightq-text";
+			// remove this and add CSS to page
+			span.style.backgroundColor = "#fff568";
+			
+			surroundSelectedText(span);
+		});
+		</script>
+	</head>
+	<body>
+		<div>This <strong>div</strong> is <em>content</em> <span class='red'>editable</span> and has a couple of <em><strong>child nodes</strong></em> within it</div>
+		<br />
+		<br />
+		<div>Le Lorem Ipsum est <strong>simplement</strong> du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un peintre anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié.</div>
+		<br />
+		<div>This <strong>div</strong> is <em>content</em> <span class='red'>editable</span> and has a couple of <em><strong>child nodes</strong></em> within it</div>
+		<br />
+		<br />
+		<a href="#">hover here</a>
+	</body>
+</html>
