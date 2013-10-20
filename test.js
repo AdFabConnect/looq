@@ -179,26 +179,34 @@ var nodeHl = function(xpath, inner, start, end)
 {
     'use strict';
     
-    console.log(xpath);
-    console.log(inner);
+    var obj = {
+            xpath: xpath,
+            inner: inner,
+            start: (typeof start === 'undefined') ? '' : start,
+            end: (typeof end === 'undefined') ? '' : end
+        };
+    
+    return obj;
 }
 
 /**
  * HIGHTLIGHT OBJECT
  */
 var hl = {
-    bgc: '#ff00ff',
+    hexa: '#fff200',
+    rgb: 'rgb(255, 242, 0)',
+    rgba: 'rgba(255, 242, 0, 1)',
     
-    init: function(bgc)
+    init: function(hexa)
     {
         'use strict';
-        hl.bgc = bgc ? bgc : hl.bgc;
+        hl.hexa = hexa ? hexa : hl.hexa;
         
         hl.bindEvents();
         
         hl.select();
         
-        hl.highlight(hl.bgc);
+        hl.highlight(hl.hexa);
     },
     
     bindEvents: function()
@@ -213,9 +221,9 @@ var hl = {
         'use strict';
         
         var nodes = s.getNodes(),
-            node, i, nodeHighlighted = [];
+            node, i, nodesHl = [];
         
-        hl.highlight(hl.bgc);
+        hl.highlight(hl.hexa);
         
         for(i in nodes) {
             node = nodes[i];
@@ -224,16 +232,17 @@ var hl = {
                 node = node.parentNode;
             }
             if(node.innerHTML !== 'undefined') {
-                nodeHighlighted.push( new nodeHl(xp.generate(node), node.innerHTML) );
+                nodesHl.push(new nodeHl(xp.generate(node), node.innerHTML));
             }
         }
+        console.log(nodesHl)
         
         window.getSelection().removeAllRanges();
     },
     
     highlight: function(colour)
     {
-        hl.unhighlight(document.body, hl.bgc);
+        hl.unhighlight(document.body, hl.hexa);
         
         var range, sel;
         if (window.getSelection) {
@@ -291,13 +300,10 @@ var hl = {
     
     select: function()
     {
-        var node = xp.get('id("heading-wrapper")/H1[1]/DIV[1]'),
-            str = 'We<span style="background-color: rgb(255, 0, 255);">lc</span>ome on your'.replace(/([\w-]+)=([\w-]+)([ >])/g, function(str, $n, $v, $e, offset, s) {
-                return $n + '="' + $v + '"' + $e;
-            });
+        // xp.get('id("middle-wrapper")/DIV[1]/DIV[1]/DIV[2]'),
+        // '<span style="background: rgb(255, 0, 255);">The excerpt</span>'.replace(hl.rgb, hl.rgba);
         
-        console.log(str);
-        node[0].innerHTML = str;
+        // node[0].innerHTML = str;
     }
 };
 
