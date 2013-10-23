@@ -1,47 +1,130 @@
-var Looq = {
-    span: null,
+var s = {
 
-    init: function()
+    getNodes: function()
     {
         'use strict';
+        var sel;
         
-        Looq.span = document.createElement("span");
-        Looq.span.className = "looq-highlight-text";
-
-        Looq.loadHighlight();
-    },
-    
-    surroundSelectedText: function(templateElement)
-    {
-        'use strict';
-        
-        var range,
-            sel = rangy.getSelection(),
-            ranges, textNodes, textNode, el, i, len, j, jLen;
-        
-        ranges = sel.getAllRanges();
-        
-        for (i = 0, len = ranges.length; i < len; ++i) {
-            range = ranges[i];
-            // If one or both of the range boundaries falls in the middle
-            // of a text node, the following line splits the text node at the
-            // boundary
-            range.splitBoundaries();
-    
-            // The first parameter below is an array of valid nodeTypes
-            // (in this case, text nodes only)
-            textNodes = range.getNodes([3]);
-    
-            for (j = 0, jLen = textNodes.length; j < jLen; ++j) {
-                textNode = textNodes[j];
-                el = templateElement.cloneNode(false);
-                textNode.parentNode.insertBefore(el, textNode);
-                el.appendChild(textNode);
+        if (window.getSelection) {
+            sel = window.getSelection();
+            
+            if (!sel.isCollapsed) {
+                return s.getRange(sel.getRangeAt(0));
             }
         }
+        
+        return [];
     },
+    
+    getRange: function( range )
+    {
+        'use strict';
+        var node = range.startContainer,
+            endNode = range.endContainer,
+            rangeNodes;
 
-    generateXPath: function(element)
+        // Single node
+        if (node == endNode) {
+            if( node.nodeName === '#text' ) {
+                return [node.parentNode];
+            }
+            return [node];
+        }
+
+        // Many nodes
+        rangeNodes = [];
+        while (node && node != endNode) {
+            rangeNodes.push( node = s.next(node) );
+        }
+
+        // Partial selection
+        node = range.startContainer;
+        while (node && node != range.commonAncestorContainer) {
+            rangeNodes.unshift(node);
+            node = node.parentNode;
+        }
+
+        return rangeNodes;
+
+    },
+    
+    next: function(node)
+    {
+        'use strict';
+
+        if (node.hasChildNodes()) {
+            return node.firstChild;
+        } else {
+            while (node && !node.nextSibling) {
+                node = node.parentNode;
+            }
+            if (!node) {
+                return null;
+            }
+            return node.nextSibling;
+        }
+
+    }
+};
+
+/**
+ * COLOUR OBJECT
+ */
+function Colour(r, g, b)
+{
+    var rgbRegex = /^rgb\(\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*\)$/,
+        hexRegex = /^#?([a-f\d]{6})$/,
+        shortHexRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/;
+    
+    // Make a new Colour object even when Colour is not called with the new operator
+    if (!(this instanceof Colour)) {
+        return new Colour(r, g, b);
+    }
+
+    if (typeof g == "undefined") {
+        // Parse the colour string
+        var colStr = r.toLowerCase(), result;
+
+        // Check for hex value first, the short hex value, then rgb value
+        if ( (result = hexRegex.exec(colStr)) ) {
+            var hexNum = parseInt(result[1], 16);
+            r = hexNum >> 16;
+            g = (hexNum & 0xff00) >> 8;
+            b = hexNum & 0xff;
+        } else if ( (result = shortHexRegex.exec(colStr)) ) {
+            r = parseInt(result[1] + result[1], 16);
+            g = parseInt(result[2] + result[2], 16);
+            b = parseInt(result[3] + result[3], 16);
+        } else if ( (result = rgbRegex.exec(colStr)) ) {
+            r = this.componentFromStr(result[1], result[2]);
+            g = this.componentFromStr(result[3], result[4]);
+            b = this.componentFromStr(result[5], result[6]);
+        } else {
+            throw new Error("Colour: Unable to parse colour string '" + colStr + "'");
+        }
+    }
+
+    this.r = r;
+    this.g = g;
+    this.b = b;
+}
+
+Colour.prototype = {
+    equals: function(colour)
+    {
+        return this.r == colour.r && this.g == colour.g && this.b == colour.b;
+    },
+    
+    componentFromStr: function(numStr, percent)
+    {
+        var num = Math.max(0, parseInt(numStr, 10));
+        return percent ? Math.floor(255 * Math.min(100, num) / 100) : Math.min(255, num);
+    }
+};
+
+var xp = {
+
+    generate: function(element)
     {
         'use strict';
         
@@ -57,9 +140,9 @@ var Looq = {
             var sibling = siblings[i];
             if (sibling === element) {
                 if(element.className === 'looq-highlight-text') {
-                    return Looq.generateXPath(element.parentNode);
+                    return xp.generate(element.parentNode);
                 }
-                return Looq.generateXPath(element.parentNode)+'/'+element.tagName+'['+(ix+1)+']';
+                return xp.generate(element.parentNode)+'/'+element.tagName+'['+(ix+1)+']';
             }
             if (sibling.nodeType===1 && sibling.tagName===element.tagName) {
                 ix++;
@@ -67,8 +150,10 @@ var Looq = {
         }
     },
     
-    getObjectFromXpath: function (xpath)
+    get: function (xpath)
     {
+        'use strict';
+        
         var result = document.evaluate(
                 xpath,
                 document.documentElement,
@@ -88,79 +173,169 @@ var Looq = {
         
         return nodes;
     },
+};
+
+var nodeHl = function(xpath, inner, start, end)
+{
+    'use strict';
     
-    getUrl: function()
+    var obj = {
+            xpath: xpath,
+            inner: inner,
+            start: (typeof start === 'undefined') ? '' : start,
+            end: (typeof end === 'undefined') ? '' : end
+        };
+    
+    return obj;
+}
+
+/**
+ * HIGHTLIGHT OBJECT
+ */
+var hl = {
+    hexa: '#fff200',
+    rgb: 'rgb(255, 242, 0)',
+    rgba: 'rgba(255, 242, 0, 1)',
+    looqSave: 'http://looq.server/rest/save',
+    
+    init: function(hexa)
     {
         'use strict';
         
-        var nodes = document.querySelectorAll('.looq-parent-highlight-text'),
-            i, res = '';
-        
-        for(i in nodes) {
-            if(typeof nodes[i] === 'object') {
-                //console.debug('generateXPath : ' + Looq.generateXPath(nodes[i]));
-                //console.debug(Looq.getObjectFromXpath(Looq.generateXPath(nodes[i])));
-                res += '&looqpath=' + Looq.generateXPath(nodes[i]) + '§§§';
-                res += nodes[i].innerHTML.replace(/<span class="looq-highlight-text">/g, '[looq]');
-            }
-        }
-        
-        return res;
+        hl.hexa = hexa ? hexa : hl.hexa;
     },
     
     selectText: function()
     {
-        'use strict';
+        //hl.highlight(hl.hexa);
+        hl.send(hl.up());
         
-        var nodes = document.querySelectorAll('.looq-highlight-text'),
-            url = top.location.origin + top.location.pathname + '?',
-            i;
-        
-        for(i in nodes) {
-            if(typeof nodes[i] === 'object') {
-                nodes[i].className = nodes[i].className.replace(/looq-highlight-text/, '');
-            }
-        }
-        
-        Looq.surroundSelectedText(Looq.span);
-        
-        nodes = document.querySelectorAll('.looq-highlight-text');
-        for(i in nodes) {
-            if(typeof nodes[i] === 'object') {
-                nodes[i].parentNode.className = nodes[i].parentNode.className + ' looq-parent-highlight-text';
-            }
-        }
-
-        var params = top.location.search.split('&'),
-        param;
-        
-        for(i in params) {
-            param = params[i].split('=');
-            if(decodeURIComponent(params[i]).indexOf('looqpath') === -1) {
-                url += params[i];
-            }
-        }
-        
-        url += encodeURIComponent(Looq.getUrl());
-        console.debug(url)
+        //hl.select();
+        window.getSelection().removeAllRanges();
     },
-    
-    loadHighlight: function()
+
+    send:function(selection)
+    {
+        var json = {
+            inner_html: selection,
+            plain: 'no set',
+            parent_node_xpath: 'not set',
+            url : top.location.href
+        },
+        params = '', i;
+        
+        for(i in json) {
+            if(params !== '') {
+                params += '&';
+            }
+            params += i +'=' + json[i];
+        }
+        console.log(params)
+        
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("POST", hl.looqSave, true);
+        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xmlhttp.send(params);
+        
+        console.log(json);
+    },
+
+    up:function()
     {
         'use strict';
         
-        var params = decodeURIComponent(top.location.search).split('&'),
-            param, split, i, node;
+        var nodes = s.getNodes(),
+            node, i, nodesHl = [], current;
         
-        for(i in params) {
-            param = params[i].split('=');
-            if(param[0] === 'looqpath') {
-                split = param[1].split('§§§');
-                node = Looq.getObjectFromXpath(split[0]);
-                node[0].innerHTML = split[1].replace(/\[looq\]/g, '<span class="looq-highlight-text">');
+        hl.highlight(hl.hexa);
+        
+        for(i in nodes) {
+            node = nodes[i];
+            
+            if( node.nodeName === '#text' && node.nodeValue.trim() ) {
+                node = node.parentNode;
+            }
+            if(node.innerHTML !== 'undefined') {
+                current = new nodeHl(xp.generate(node), node.innerHTML);
+                if(node.nodeName !== '#text') {
+                    nodesHl.push(current);
+                }
             }
         }
+        
+        return JSON.stringify(nodesHl);
+    },
+    
+    highlight: function(colour)
+    {
+        hl.unhighlight(document.body, hl.hexa);
+        
+        var range, sel;
+        if (window.getSelection) {
+            // IE9 and non-IE
+            try {
+                if (!document.execCommand("BackColor", false, colour)) {
+                    hl.makeEditableAndHighlight(colour);
+                }
+            } catch (ex) {
+                hl.makeEditableAndHighlight(colour)
+            }
+        } else if (document.selection && document.selection.createRange) {
+            // IE <= 8 case
+            range = document.selection.createRange();
+            range.execCommand("BackColor", false, colour);
+        }
+    },
+
+    makeEditableAndHighlight: function(colour)
+    {
+        var range, sel = window.getSelection();
+        if (sel.rangeCount && sel.getRangeAt) {
+            range = sel.getRangeAt(0);
+        }
+        document.designMode = "on";
+        if (range) {
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        // Use HiliteColor since some browsers apply BackColor to the whole block
+        if (!document.execCommand("HiliteColor", false, colour)) {
+            document.execCommand("BackColor", false, colour);
+        }
+        document.designMode = "off";
+    },
+
+    unhighlight: function(node, colour)
+    {
+        if (!(colour instanceof Colour)) {
+            colour = new Colour(colour);
+        }
+
+        if (node.nodeType == 1) {
+            var bg = node.style.backgroundColor;
+            if (bg && colour.equals(new Colour(bg))) {
+                node.style.backgroundColor = "";
+            }
+        }
+        var child = node.firstChild;
+        while (child) {
+            hl.unhighlight(child, colour);
+            child = child.nextSibling;
+        }
+    },
+    
+    select: function()
+    {
+        // xp.get('id("middle-wrapper")/DIV[1]/DIV[1]/DIV[2]'),
+        // '<span style="background: rgb(255, 0, 255);">The excerpt</span>'.replace(hl.rgb, hl.rgba);
+        
+        // node[0].innerHTML = str;
     }
 };
 
-Looq.init();
+window.addEventListener('load', function (e)
+{
+    hl.init();
+});
+
+

@@ -10,7 +10,7 @@ var background = {
     {
         'use strict';
         
-        chrome.tabs.executeScript(null, {code:"Looq.selectText();"});
+        chrome.tabs.executeScript(null, {code:"hl.selectText();"});
     }
 };
 
