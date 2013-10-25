@@ -24,7 +24,7 @@ var s = {
             rangeNodes;
 
         // Single node
-        if (node == endNode) {
+        if (node === endNode) {
             if( node.nodeName === '#text' ) {
                 return [node.parentNode];
             }
@@ -197,47 +197,126 @@ var hl = {
     rgb: 'rgb(255, 242, 0)',
     rgba: 'rgba(255, 242, 0, 1)',
     looqSave: 'http://looq.server/rest/save',
+    looqisAutorized: 'http://looq.server/rest/isAutorized',
+    looqOauth: 'http://looq.server/rest/oauth',
     
     init: function(hexa)
     {
         'use strict';
         
         hl.hexa = hexa ? hexa : hl.hexa;
+        
+        hl.checkLooqUrl();
+    },
+    
+    bindLogin: function(callback)
+    {
+        
+    },
+    
+    bindLogin: function(callback)
+    {
+        var json;
+        
+        document.querySelector('#looq-submit').addEventListener('click', function(e)
+        {
+            json = {
+                'email': document.querySelector('#looq-email').value,
+                'password': document.querySelector('#looq-password').value
+            };
+            
+            hl.ajax('POST', hl.looqOauth, json, function()
+            {
+                callback();
+            });
+        });
+    },
+    
+    isAutorized: function(callback)
+    {
+        var response;
+        
+        hl.ajax('POST', hl.looqisAutorized, {}, function(e)
+        {
+            response = JSON.parse(e.response);
+            if(response.authorized !== 'undefined' && !response.authorized) {
+                hl.ajax('GET', chrome.extension.getURL("login.html"), null, function(e)
+                {
+                    hl.appendHTML(document.body, e.response);
+                    hl.bindLogin(callback);
+                });
+            }else if(response.authorized !== 'undefined') {
+                callback();
+            }
+        });
     },
     
     selectText: function()
     {
+        hl.isAutorized(function()
+        {
+            hl.send(hl.up(), function()
+            {
+                window.getSelection().removeAllRanges();
+            });
+        });
+        
         //hl.highlight(hl.hexa);
-        hl.send(hl.up());
         
         //hl.select();
-        window.getSelection().removeAllRanges();
+    },
+    
+    appendHTML:function (el, str)
+    {
+        var div = document.createElement('div');
+        div.innerHTML = str;
+        while (div.children.length > 0) {
+            el.appendChild(div.children[0]);
+        }
     },
 
-    send:function(selection)
+    send:function(selection, callback)
     {
         var json = {
             inner_html: selection,
             plain: 'no set',
             parent_node_xpath: 'not set',
             url : top.location.href
-        },
-        params = '', i;
+        };
         
+        hl.ajax('POST', hl.looqSave, json, callback);
+    },
+    
+    ajax:function(type, url, json, callback)
+    {
+        var params = '', i;
+           
         for(i in json) {
             if(params !== '') {
                 params += '&';
             }
             params += i +'=' + json[i];
         }
-        console.log(params)
         
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", hl.looqSave, true);
+        xmlhttp.onreadystatechange = function() {
+            if(xmlhttp.readyState < 4) {
+                return;
+            }
+                
+            if(xmlhttp.status !== 200) {
+                return;
+            }
+     
+            // all is well  
+            if(xmlhttp.readyState === 4 && callback !== null) {
+                callback(xmlhttp);
+            }
+        }
+        
+        xmlhttp.open(type, url, true);
         xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         xmlhttp.send(params);
-        
-        console.log(json);
     },
 
     up:function()
@@ -333,9 +412,6 @@ var hl = {
     }
 };
 
-window.addEventListener('load', function (e)
-{
-    hl.init();
-});
+hl.init();
 
 

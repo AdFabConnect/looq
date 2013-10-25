@@ -38,5 +38,8 @@
         "default_icon": "icon.png",
         "description": "looq"
     },
+    "web_accessible_resources": [
+        "login.html"
+    ],
     "manifest_version": 2
 }
