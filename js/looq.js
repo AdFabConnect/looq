@@ -1,179 +1,4 @@
-var s = {
-
-    getNodes: function()
-    {
-        'use strict';
-        var sel;
-        
-        if (window.getSelection) {
-            sel = window.getSelection();
-            
-            if (!sel.isCollapsed) {
-                return s.getRange(sel.getRangeAt(0));
-            }
-        }
-        
-        return [];
-    },
-    
-    getRange: function( range )
-    {
-        'use strict';
-        var node = range.startContainer,
-            endNode = range.endContainer,
-            rangeNodes;
-
-        // Single node
-        if (node === endNode) {
-            if( node.nodeName === '#text' ) {
-                return [node.parentNode];
-            }
-            return [node];
-        }
-
-        // Many nodes
-        rangeNodes = [];
-        while (node && node != endNode) {
-            rangeNodes.push( node = s.next(node) );
-        }
-
-        // Partial selection
-        node = range.startContainer;
-        while (node && node != range.commonAncestorContainer) {
-            rangeNodes.unshift(node);
-            node = node.parentNode;
-        }
-
-        return rangeNodes;
-
-    },
-    
-    next: function(node)
-    {
-        'use strict';
-
-        if (node.hasChildNodes()) {
-            return node.firstChild;
-        } else {
-            while (node && !node.nextSibling) {
-                node = node.parentNode;
-            }
-            if (!node) {
-                return null;
-            }
-            return node.nextSibling;
-        }
-
-    }
-};
-
-/**
- * COLOUR OBJECT
- */
-function Colour(r, g, b)
-{
-    var rgbRegex = /^rgb\(\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*\)$/,
-        hexRegex = /^#?([a-f\d]{6})$/,
-        shortHexRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/;
-    
-    // Make a new Colour object even when Colour is not called with the new operator
-    if (!(this instanceof Colour)) {
-        return new Colour(r, g, b);
-    }
-
-    if (typeof g == "undefined") {
-        // Parse the colour string
-        var colStr = r.toLowerCase(), result;
-
-        // Check for hex value first, the short hex value, then rgb value
-        if ( (result = hexRegex.exec(colStr)) ) {
-            var hexNum = parseInt(result[1], 16);
-            r = hexNum >> 16;
-            g = (hexNum & 0xff00) >> 8;
-            b = hexNum & 0xff;
-        } else if ( (result = shortHexRegex.exec(colStr)) ) {
-            r = parseInt(result[1] + result[1], 16);
-            g = parseInt(result[2] + result[2], 16);
-            b = parseInt(result[3] + result[3], 16);
-        } else if ( (result = rgbRegex.exec(colStr)) ) {
-            r = this.componentFromStr(result[1], result[2]);
-            g = this.componentFromStr(result[3], result[4]);
-            b = this.componentFromStr(result[5], result[6]);
-        } else {
-            throw new Error("Colour: Unable to parse colour string '" + colStr + "'");
-        }
-    }
-
-    this.r = r;
-    this.g = g;
-    this.b = b;
-}
-
-Colour.prototype = {
-    equals: function(colour)
-    {
-        return this.r == colour.r && this.g == colour.g && this.b == colour.b;
-    },
-    
-    componentFromStr: function(numStr, percent)
-    {
-        var num = Math.max(0, parseInt(numStr, 10));
-        return percent ? Math.floor(255 * Math.min(100, num) / 100) : Math.min(255, num);
-    }
-};
-
-var xp = {
-
-    generate: function(element)
-    {
-        'use strict';
-        
-        if (element.id !== '') {
-            return 'id("'+element.id+'")';
-        }else if (element === document.body) {
-            return element.tagName;
-        }
-
-        var ix= 0;
-        var siblings = element.parentNode.childNodes;
-        for (var i= 0; i < siblings.length; i++) {
-            var sibling = siblings[i];
-            if (sibling === element) {
-                if(element.className === 'looq-highlight-text') {
-                    return xp.generate(element.parentNode);
-                }
-                return xp.generate(element.parentNode)+'/'+element.tagName+'['+(ix+1)+']';
-            }
-            if (sibling.nodeType===1 && sibling.tagName===element.tagName) {
-                ix++;
-            }
-        }
-    },
-    
-    get: function (xpath)
-    {
-        'use strict';
-        
-        var result = document.evaluate(
-                xpath,
-                document.documentElement,
-                null,
-                XPathResult.ORDERED_NODE_ITERATOR_TYPE,
-                null
-            ),
-            nodes = [];
-        
-        if (result) {
-            var node = result.iterateNext();
-            while(node) {
-                nodes.push(node);
-                node = result.iterateNext();
-            }
-        }
-        
-        return nodes;
-    },
-};
+var severUrl = 'looq.server';
 
 var nodeHl = function(xpath, inner, start, end)
 {
@@ -187,18 +12,18 @@ var nodeHl = function(xpath, inner, start, end)
         };
     
     return obj;
-}
+};
 
 /**
  * HIGHTLIGHT OBJECT
  */
 var hl = {
-    hexa: '#fff200',
-    rgb: 'rgb(255, 242, 0)',
-    rgba: 'rgba(255, 242, 0, 1)',
-    looqSave: 'http://looq.server/rest/save',
-    looqisAutorized: 'http://looq.server/rest/isAutorized',
-    looqOauth: 'http://looq.server/rest/oauth',
+    hexa: '#fef670',
+    rgb: 'rgb(254, 246, 112)',
+    rgba: 'rgba(254, 246, 112, 1)',
+    looqGet: '//' + severUrl + '/rest/looq',
+    looqSave: '//' + severUrl + '/rest/save',
+    looqisAutorized: '//' + severUrl + '/rest/isAutorized',
     
     init: function(hexa)
     {
@@ -209,61 +34,153 @@ var hl = {
         hl.checkLooqUrl();
     },
     
-    bindLogin: function(callback)
+    getLooqId: function()
     {
-        
-    },
-    
-    bindLogin: function(callback)
-    {
-        var json;
-        
-        document.querySelector('#looq-submit').addEventListener('click', function(e)
-        {
-            json = {
-                'email': document.querySelector('#looq-email').value,
-                'password': document.querySelector('#looq-password').value
-            };
-            
-            hl.ajax('POST', hl.looqOauth, json, function()
-            {
-                callback();
-            });
-        });
-    },
-    
-    isAutorized: function(callback)
-    {
-        var response;
-        
-        hl.ajax('POST', hl.looqisAutorized, {}, function(e)
-        {
-            response = JSON.parse(e.response);
-            if(response.authorized !== 'undefined' && !response.authorized) {
-                hl.ajax('GET', chrome.extension.getURL("login.html"), null, function(e)
-                {
-                    hl.appendHTML(document.body, e.response);
-                    hl.bindLogin(callback);
-                });
-            }else if(response.authorized !== 'undefined') {
-                callback();
+        var hashs = top.location.hash.split('#'), i, hash;
+        for(i in hashs) {
+            if(typeof hashs[i] === 'string' && hashs[i] !== '' && hashs[i].split('=')[0] === 'looq') {
+                return hashs[i].split('=')[1];
             }
-        });
+        }
+        
+        return null;
+    },
+    
+    checkLooqUrl: function()
+    {
+        'use strict';
+        
+        setTimeout(function()
+        {
+            var json = {
+                    id: null
+                },
+                response, objects, object, i, first, height, bounds1, bounds2;
+            
+            json.id = hl.getLooqId();
+            if(json.id !== null) {
+                util.ajax('POST', hl.looqGet, json)
+                    .then(function(e)
+                    {
+                        response = JSON.parse(e.response);
+                        objects = JSON.parse(response.data.looq.inner_html);
+                        
+                        for(i in objects) {
+                            object = xp.get(objects[i].xpath);
+                            if(typeof object !== 'undefined' && object.length === 1
+                                    && typeof object[0] !== 'undefined') {
+                                if(first === undefined) {
+                                    first = object;
+                                }
+                                object[0].innerHTML = objects[i].inner;
+                            }
+                        }
+    
+                        bounds1 = first[0].getBoundingClientRect();
+                        bounds2 = object[0].getBoundingClientRect();
+                        height = (bounds2.top + bounds2.height) - bounds1.top;
+                        
+                        document.body.scrollTop = document.documentElement.scrollTop = bounds1.top - 110;
+                    });
+            }
+        }, 100);
+    },
+
+    /**
+     * Return promise
+     */
+    isAutorized: function()
+    {
+        var promise = new Promise(), response;
+        
+        util.ajax('POST', hl.looqisAutorized, {})
+            .then(function(e)
+            {
+                response = JSON.parse(e.response);
+                if(response.authorized !== 'undefined' && !response.authorized) {
+                    chrome.extension.sendRequest({
+                        msg: "login"
+                    });
+                }else if(response.authorized !== 'undefined') {
+                    // AUTHORIZED
+                    promise.resolve();
+                }
+            });
+        
+        return promise;
     },
     
     selectText: function()
     {
-        hl.isAutorized(function()
-        {
-            hl.send(hl.up(), function()
+        var selection;
+        
+        hl.isAutorized()
+            .then(function()
             {
+                selection = hl.up();
                 window.getSelection().removeAllRanges();
+                
+                hl.showPopinEmail()
+                    .then(function(emails)
+                    {
+                        hl.send(selection, emails);
+                        window.getSelection().removeAllRanges();
+                    });
             });
-        });
+    },
+    
+    removePopinEmail:function()
+    {
+        util.removeClass(document.querySelector('#looq-popin-email'), 'slideInRight');
+        util.addClass(document.querySelector('#looq-popin-email'), 'slideOutLeft');
+    },
+    
+    showPopinEmail:function()
+    {
+        var promise = new Promise(),
+            popinTxt = '', clickClose, clickSubmit;
+
+        if(document.querySelector('#looq-popin-email') === null) {
+            popinTxt = '<div id="looq-popin-email" class="looq-popin animated slideInRight">';
+            popinTxt += '    <div class="looq-close"></div>';
+            popinTxt += '    <div class="looq-title">You want to send a looq ?</div>';
+            popinTxt += '    <div class="looq-form-row">';
+            popinTxt += '        <input type="text" id="looq-email" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
+            popinTxt += '    </div>';
+            popinTxt += '    <div class="looq-form-row">';
+            popinTxt += '        <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '    </div>';
+            popinTxt += '</div>';
+            
+            hl.appendHTML(document.body, popinTxt);
+        }else {
+            util.removeClass(document.querySelector('#looq-popin-email'), 'slideOutLeft');
+            util.addClass(document.querySelector('#looq-popin-email'), 'slideInRight');
+        }
         
-        //hl.highlight(hl.hexa);
+        clickClose = function(e)
+        {
+            document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
+            document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
+            hl.removePopinEmail();
+        };
         
-        //hl.select();
+        clickSubmit = function()
+        {
+            document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
+            document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
+            
+            var emails = document.querySelector('#looq-popin-email .email');
+            if(regex.isNotEmpty(emails.value)) {
+                promise.resolve(emails.value);
+                hl.removePopinEmail();
+            }
+        };
+        
+        document.querySelector('#looq-popin-email .looq-close').addEventListener('click', clickClose);
+        document.querySelector('#looq-popin-email #looq-submit').addEventListener('click', clickSubmit);
+        
+        return promise;
     },
     
     appendHTML:function (el, str)
@@ -275,48 +192,13 @@ var hl = {
         }
     },
 
-    send:function(selection, callback)
+    send:function(selection, emails)
     {
-        var json = {
-            inner_html: selection,
-            plain: 'no set',
-            parent_node_xpath: 'not set',
-            url : top.location.href
-        };
+        var json = selection;
+        json.emails = emails;
+        json.url = top.location.href;
         
-        hl.ajax('POST', hl.looqSave, json, callback);
-    },
-    
-    ajax:function(type, url, json, callback)
-    {
-        var params = '', i;
-           
-        for(i in json) {
-            if(params !== '') {
-                params += '&';
-            }
-            params += i +'=' + json[i];
-        }
-        
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if(xmlhttp.readyState < 4) {
-                return;
-            }
-                
-            if(xmlhttp.status !== 200) {
-                return;
-            }
-     
-            // all is well  
-            if(xmlhttp.readyState === 4 && callback !== null) {
-                callback(xmlhttp);
-            }
-        }
-        
-        xmlhttp.open(type, url, true);
-        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        xmlhttp.send(params);
+        util.ajax('POST', hl.looqSave, json);
     },
 
     up:function()
@@ -324,7 +206,8 @@ var hl = {
         'use strict';
         
         var nodes = s.getNodes(),
-            node, i, nodesHl = [], current;
+            plain = s.getPlainText(),
+            node, i, nodesHl = [], current, inArray = [], xpath;
         
         hl.highlight(hl.hexa);
         
@@ -335,14 +218,20 @@ var hl = {
                 node = node.parentNode;
             }
             if(node.innerHTML !== 'undefined') {
-                current = new nodeHl(xp.generate(node), node.innerHTML);
-                if(node.nodeName !== '#text') {
+                xpath = xp.generate(node);
+                current = new nodeHl(xpath, node.innerHTML);
+                
+                if(node.nodeName !== '#text' && !util.inArray(xpath, inArray)) {
+                    inArray.push(xpath)
                     nodesHl.push(current);
                 }
             }
         }
         
-        return JSON.stringify(nodesHl);
+        return {
+            inner_html: JSON.stringify(nodesHl),
+            plain: plain
+        };
     },
     
     highlight: function(colour)
@@ -401,17 +290,7 @@ var hl = {
             hl.unhighlight(child, colour);
             child = child.nextSibling;
         }
-    },
-    
-    select: function()
-    {
-        // xp.get('id("middle-wrapper")/DIV[1]/DIV[1]/DIV[2]'),
-        // '<span style="background: rgb(255, 0, 255);">The excerpt</span>'.replace(hl.rgb, hl.rgba);
-        
-        // node[0].innerHTML = str;
     }
 };
 
 hl.init();
-
-

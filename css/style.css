@@ -2,6 +2,25 @@
   background-color: #f8f670;
   color: #000;
 }
+#looq-overlay-top {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9999999999999999999;
+}
+#looq-overlay-bottom {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9999999999999999999;
+}
+.looq-hidden {
+  display: none;
+}
 .looq-popin {
   z-index: 9999999999999999999;
   padding: 20px;
@@ -15,6 +34,16 @@
   border-radius: 5px;
   -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+}
+.looq-popin .looq-close {
+  cursor: pointer;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  background-repeat: no-repeat;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAOhJREFUeNpi/P//P8NgAEwMgwSMOmTUIaMOGXXIqEMGi0PigfgElCZFDjcAVXokYpWHDx/9j4qK/f/582cg938CklwCSAwk9+LFC5CcDLHmkhMiD6WkJBlAlXZaWhbDly9f5gPFEkAYxAaJgeRERERAal/QMkTgPo+MjAVjEBudjxZSBDEjBe0ReAggg1mzpjHw8PAkApkLaJ1GUELm2bPn/w0NTcEYxCY1JIZNiFA9jZDjCNbfv39jsxTFcX/+/AGJs9DSITQpR8iNmnggPgGlSZGjSWIdrfRGHTLqkFGHjDpkUDsEIMAAIDv/Y2qsTzUAAAAASUVORK5CYII=);
 }
 .looq-popin .looq-title {
   font-family: "Arial" !important;
