@@ -31,7 +31,10 @@ function Colour(r, g, b)
             g = this.componentFromStr(result[3], result[4]);
             b = this.componentFromStr(result[5], result[6]);
         } else {
-            throw new Error("Colour: Unable to parse colour string '" + colStr + "'");
+            r = 0;
+            g = 0;
+            b = 0;
+            //throw new Error("Colour: Unable to parse colour string '" + colStr + "'");
         }
     }
 
