@@ -1,4 +1,4 @@
-var severUrl = 'looq.server';
+var severUrl = 'ic.adfab.fr/looq';
 
 var nodeHl = function(xpath, inner, start, end)
 {

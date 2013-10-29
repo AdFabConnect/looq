@@ -26,7 +26,7 @@ var background = {
     
     openTabLogin: function()
     {
-        chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
+        chrome.tabs.create({'url': 'http://ic.adfab.fr/looq/'}, function (tab)
         {
             // Tab opened.
         });
