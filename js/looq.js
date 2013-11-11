@@ -1,4 +1,4 @@
-var severUrl = 'ic.adfab.fr/looq';
+var severUrl = 'looq.server';
 
 var nodeHl = function(xpath, inner, start, end)
 {
@@ -198,7 +198,18 @@ var hl = {
         json.emails = emails;
         json.url = top.location.href;
         
-        util.ajax('POST', hl.looqSave, json);
+        util.ajax('POST', hl.looqSave, json)
+            .then(function(result)
+            {
+                result = JSON.parse(result.response);
+                if(result.data.saved === true) {
+                    hl.appendHTML(document.body, '<div class="looq-result animated slideInDown">Your looq has been sent !<div class="looq-close"></div></div>');
+                    document.querySelector('.looq-result .looq-close').addEventListener('click', function(e)
+                    {
+                        document.body.removeChild(document.querySelector('.looq-result'));
+                    });
+                }
+            });
     },
 
     up:function()
