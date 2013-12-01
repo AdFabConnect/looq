@@ -94,21 +94,22 @@
   -webkit-border-radius: 5px !important;
   border-radius: 5px !important;
 }
-.looq-result {
+body .looq-result {
   position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 40px;
-  background-color: #fef670;
-  z-index: 99999999999;
-  text-align: center;
-  line-height: 40px;
-  color: #000;
-  font-weight: bold;
-  font-size: 13px;
+  background-color: #fef670 !important;
+  z-index: 99999999999 !important;
+  text-align: center !important;
+  line-height: 40px !important;
+  color: #000 !important;
+  font-weight: bold !important;
+  font-size: 13px !important;
+  font-family: Arial !important;
 }
-.looq-result .looq-close {
+body .looq-result .looq-close {
   cursor: pointer;
   position: absolute;
   top: 14px;
