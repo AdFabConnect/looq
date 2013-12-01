@@ -10,13 +10,23 @@ util = {
     
     ajax:function(type, url, json)
     {
-        var promise = new Promise(), params = '', i;
-           
+        var promise = new Promise(), params = '', i, j;
+
         for(i in json) {
             if(params !== '') {
                 params += '&';
             }
-            params += i +'=' + json[i];
+            if(typeof json[i] === 'object') {
+                for(j in json[i]) {
+                    if(params !== '') {
+                        params += '&';
+                    }
+                    params += i +'[' + j + ']=' + json[i][j];
+                    console.log(json[i][j])
+                }
+            }else {
+                params += i +'=' + encodeURIComponent(json[i]);
+            }
         }
         
         var xmlhttp = new XMLHttpRequest();

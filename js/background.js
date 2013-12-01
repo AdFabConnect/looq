@@ -26,6 +26,7 @@ var background = {
     
     openTabLogin: function()
     {
+        //chrome.tabs.create({'url': 'http://looq.livedemo.fr/'}, function (tab)
         chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
         {
             // Tab opened.

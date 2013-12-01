@@ -1,3 +1,4 @@
+//var severUrl = 'looq.livedemo.fr';
 var severUrl = 'looq.server';
 
 var nodeHl = function(xpath, inner, start, end)
@@ -67,6 +68,7 @@ var hl = {
                         
                         for(i in objects) {
                             object = xp.get(objects[i].xpath);
+                            
                             if(typeof object !== 'undefined' && object.length === 1
                                     && typeof object[0] !== 'undefined') {
                                 if(first === undefined) {
@@ -222,25 +224,33 @@ var hl = {
         
         hl.highlight(hl.hexa);
         
+        var all = document.querySelectorAll('[style="background-color: rgb(254, 246, 112);"]'), i;
+        for(i in all) {
+            all[i].className = (typeof all[i].className !== 'undefined'
+                && all[i].className !== 'undefined') ? all[i].className + ' looq-highlight' : 'looq-highlight';
+        }
+        
         for(i in nodes) {
             node = nodes[i];
             
             if( node.nodeName === '#text' && node.nodeValue.trim() ) {
                 node = node.parentNode;
             }
-            if(node.innerHTML !== 'undefined') {
+            
+            if(typeof node.innerHTML !== 'undefined' && node.innerHTML !== 'undefined'
+                && node.innerHTML !== null) {
                 xpath = xp.generate(node);
-                current = new nodeHl(xpath, node.innerHTML);
                 
-                if(node.nodeName !== '#text' && !util.inArray(xpath, inArray)) {
-                    inArray.push(xpath)
-                    nodesHl.push(current);
+                if(node.nodeName !== '#text' && !util.inArray(xpath, inArray) && node.className.indexOf('looq-highlight') === -1) {
+                    current = new nodeHl(xpath, encodeURIComponent(node.innerHTML.replace(/"/g, "'")));
+                    inArray.push(xpath);
+                    nodesHl.push(JSON.stringify(current));
                 }
             }
         }
         
         return {
-            inner_html: JSON.stringify(nodesHl),
+            inner_html: nodesHl,
             plain: plain
         };
     },
