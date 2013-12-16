@@ -26,6 +26,7 @@ var hl = {
     rgba: 'rgba(254, 246, 112, 1)',
     looqGet: '//' + severUrl + '/rest/looq',
     looqSave: '//' + severUrl + '/rest/save',
+    looqLogin: '//' + severUrl + '/rest/login',
     looqisAutorized: '//' + severUrl + '/rest/isAutorized',
     
     init: function(hexa)
@@ -102,9 +103,18 @@ var hl = {
             {
                 response = JSON.parse(e.response);
                 if(response.authorized !== 'undefined' && !response.authorized) {
-                    chrome.extension.sendRequest({
-                        msg: "login"
-                    });
+                    hl.showPopinLogin()
+                        .then(function(obj)
+                            {
+                                hl.login(obj.email, obj.password)
+                                    .then(function(response)
+                                    {
+                                        if(response.authorized !== 'undefined' && response.authorized) {
+                                            // AUTHORIZED
+                                            promise.resolve();
+                                        }
+                                    });
+                            });
                 }else if(response.authorized !== 'undefined') {
                     // AUTHORIZED
                     promise.resolve();
@@ -118,12 +128,12 @@ var hl = {
     {
         var selection;
         
+        selection = hl.up();
+        window.getSelection().removeAllRanges();
+        
         hl.isAutorized()
             .then(function()
             {
-                selection = hl.up();
-                window.getSelection().removeAllRanges();
-                
                 hl.showPopinEmail()
                     .then(function(emails)
                     {
@@ -133,10 +143,66 @@ var hl = {
             });
     },
     
-    removePopinEmail:function()
+    removePopin:function(popin)
     {
-        util.removeClass(document.querySelector('#looq-popin-email'), 'slideInRight');
-        util.addClass(document.querySelector('#looq-popin-email'), 'slideOutLeft');
+        util.removeClass(popin, 'slideInRight');
+        util.addClass(popin, 'slideOutLeft');
+    },
+    
+    showPopinLogin:function()
+    {
+        var promise = new Promise(),
+            popinTxt = '', clickClose, clickSubmit;
+
+        if(document.querySelector('#looq-popin-login') === null) {
+            popinTxt = '<div id="looq-popin-login" class="looq-popin animated slideInRight">';
+            popinTxt += '    <div class="looq-close"></div>';
+            popinTxt += '    <div class="looq-title">Connexion</div>';
+            popinTxt += '    <div class="looq-form-row">';
+            popinTxt += '        <input type="text" id="looq-email" class="email" name="email" placeholder="Login" />';
+            popinTxt += '    </div>';
+            popinTxt += '    <div class="looq-form-row">';
+            popinTxt += '        <input type="text" id="looq-password" class="email" name="email" placeholder="Password" />';
+            popinTxt += '    </div>';
+            popinTxt += '    <div class="looq-form-row">';
+            popinTxt += '        <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '    </div>';
+            popinTxt += '</div>';
+            
+            hl.appendHTML(document.body, popinTxt);
+        }else {
+            util.removeClass(document.querySelector('#looq-popin-login'), 'slideOutLeft');
+            util.addClass(document.querySelector('#looq-popin-login'), 'slideInRight');
+        }
+        
+        clickClose = function(e)
+        {
+            document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
+            document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
+            hl.removePopin(document.querySelector('#looq-popin-login'));
+        };
+        
+        clickSubmit = function()
+        {
+            document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
+            document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
+            
+            var email = document.querySelector('#looq-popin-login #looq-email'),
+                password = document.querySelector('#looq-popin-login #looq-password');
+            
+            if(regex.isNotEmpty(email.value) && regex.isNotEmpty(password.value)) {
+                promise.resolve({
+                    email: email.value,
+                    password: password.value
+                });
+                hl.removePopin(document.querySelector('#looq-popin-login'));
+            }
+        };
+        
+        document.querySelector('#looq-popin-login .looq-close').addEventListener('click', clickClose);
+        document.querySelector('#looq-popin-login #looq-submit').addEventListener('click', clickSubmit);
+        
+        return promise;
     },
     
     showPopinEmail:function()
@@ -166,7 +232,7 @@ var hl = {
         {
             document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
-            hl.removePopinEmail();
+            hl.removePopin(document.querySelector('#looq-popin-email'));
         };
         
         clickSubmit = function()
@@ -177,7 +243,7 @@ var hl = {
             var emails = document.querySelector('#looq-popin-email .email');
             if(regex.isNotEmpty(emails.value)) {
                 promise.resolve(emails.value);
-                hl.removePopinEmail();
+                hl.removePopin(document.querySelector('#looq-popin-email'));
             }
         };
         
@@ -194,6 +260,25 @@ var hl = {
         while (div.children.length > 0) {
             el.appendChild(div.children[0]);
         }
+    },
+
+    login:function(email, password)
+    {
+        var json = {
+            email: email,
+            password: password,
+            url: top.location.href
+        },
+        promise = new Promise();
+        
+        util.ajax('POST', hl.looqLogin, json)
+            .then(function(result)
+            {
+                result = JSON.parse(result.response);
+                promise.resolve(result);
+            });
+
+        return promise;
     },
 
     send:function(selection, emails)
