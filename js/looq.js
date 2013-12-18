@@ -163,7 +163,7 @@ var hl = {
             popinTxt += '        <input type="text" id="looq-email" class="email" name="email" placeholder="Login" />';
             popinTxt += '    </div>';
             popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="text" id="looq-password" class="email" name="email" placeholder="Password" />';
+            popinTxt += '        <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
             popinTxt += '    </div>';
             popinTxt += '    <div class="looq-form-row">';
             popinTxt += '        <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
