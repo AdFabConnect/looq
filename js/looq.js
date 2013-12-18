@@ -147,6 +147,7 @@ var hl = {
     {
         util.removeClass(popin, 'slideInRight');
         util.addClass(popin, 'slideOutLeft');
+        hl.unhighlight(document.body, hl.hexa);
     },
     
     showPopinLogin:function()
@@ -383,6 +384,9 @@ var hl = {
 
     unhighlight: function(node, colour)
     {
+
+        var looqs, i, child;
+        
         if (!(colour instanceof Colour)) {
             colour = new Colour(colour);
         }
@@ -393,10 +397,18 @@ var hl = {
                 node.style.backgroundColor = "";
             }
         }
-        var child = node.firstChild;
+        
+        child = node.firstChild;
         while (child) {
             hl.unhighlight(child, colour);
             child = child.nextSibling;
+        }
+        
+        looqs = document.querySelectorAll('.looq-highlight');
+        for(i in looqs) {
+            if(typeof looqs[i] === 'object') {
+                looqs[i].className = looqs[i].className.replace(/looq-highlight/g, '');
+            }
         }
     }
 };
