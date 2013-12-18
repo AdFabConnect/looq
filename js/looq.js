@@ -40,13 +40,12 @@ var hl = {
     
     getLooqId: function()
     {
-        var hashs = top.location.hash.split('#'), i, hash;
+        var hashs = unescape(top.location.hash).split('#'), i;
         for(i in hashs) {
             if(typeof hashs[i] === 'string' && hashs[i] !== '' && hashs[i].split('=')[0] === 'looq') {
                 return hashs[i].split('=')[1];
             }
         }
-        
         return null;
     },
     
@@ -147,7 +146,6 @@ var hl = {
     {
         util.removeClass(popin, 'slideInRight');
         util.addClass(popin, 'slideOutLeft');
-        hl.unhighlight(document.body, hl.hexa);
     },
     
     showPopinLogin:function()
@@ -181,6 +179,7 @@ var hl = {
             document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
             hl.removePopin(document.querySelector('#looq-popin-login'));
+            hl.unhighlight(document.body, hl.hexa);
         };
         
         clickSubmit = function()
@@ -234,6 +233,7 @@ var hl = {
             document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
             hl.removePopin(document.querySelector('#looq-popin-email'));
+            hl.unhighlight(document.body, hl.hexa);
         };
         
         clickSubmit = function()
@@ -284,9 +284,14 @@ var hl = {
 
     send:function(selection, emails)
     {
-        var json = selection;
+        var json = selection, i;
         json.emails = emails;
-        json.url = top.location.href;
+        json.url = top.location.origin + top.location.pathname + top.location.search;
+        
+        var hashs = top.location.hash.split('#')
+        for(i in hashs) {
+            json.url += (hashs[i].indexOf('looq') === -1 && hashs[i].replace(/ /g, '') !== '') ? '#' + hashs[i] : '';
+        }
         
         util.ajax('POST', hl.looqSave, json)
             .then(function(result)
