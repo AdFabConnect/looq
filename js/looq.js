@@ -155,17 +155,19 @@ var hl = {
 
         if(document.querySelector('#looq-popin-login') === null) {
             popinTxt = '<div id="looq-popin-login" class="looq-popin animated slideInRight">';
-            popinTxt += '    <div class="looq-close"></div>';
-            popinTxt += '    <div class="looq-title">Connexion</div>';
-            popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="text" id="looq-email" class="email" name="email" placeholder="Login" />';
-            popinTxt += '    </div>';
-            popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
-            popinTxt += '    </div>';
-            popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
-            popinTxt += '    </div>';
+            popinTxt += '    <form id="looq-form-login" action="#">';
+            popinTxt += '       <div class="looq-close"></div>';
+            popinTxt += '       <div class="looq-title">Connexion</div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <input type="text" id="looq-email" class="email" name="email" placeholder="Email" />';
+            popinTxt += '       </div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
+            popinTxt += '        </div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '       </div>';
+            popinTxt += '    </form>';
             popinTxt += '</div>';
             
             hl.appendHTML(document.body, popinTxt);
@@ -178,14 +180,18 @@ var hl = {
         {
             document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-form-login').removeEventListener('submit', clickSubmit);
             hl.removePopin(document.querySelector('#looq-popin-login'));
             hl.unhighlight(document.body, hl.hexa);
         };
         
-        clickSubmit = function()
+        clickSubmit = function(e)
         {
+            e.preventDefault();
+            
             document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-form-login').removeEventListener('submit', clickSubmit);
             
             var email = document.querySelector('#looq-popin-login #looq-email'),
                 password = document.querySelector('#looq-popin-login #looq-password');
@@ -201,6 +207,9 @@ var hl = {
         
         document.querySelector('#looq-popin-login .looq-close').addEventListener('click', clickClose);
         document.querySelector('#looq-popin-login #looq-submit').addEventListener('click', clickSubmit);
+        document.querySelector('#looq-form-login').addEventListener('submit', clickSubmit);
+        
+        document.querySelector('#looq-email').focus();
         
         return promise;
     },
@@ -212,14 +221,16 @@ var hl = {
 
         if(document.querySelector('#looq-popin-email') === null) {
             popinTxt = '<div id="looq-popin-email" class="looq-popin animated slideInRight">';
-            popinTxt += '    <div class="looq-close"></div>';
-            popinTxt += '    <div class="looq-title">You want to send a looq ?</div>';
-            popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="text" id="looq-email" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
-            popinTxt += '    </div>';
-            popinTxt += '    <div class="looq-form-row">';
-            popinTxt += '        <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
-            popinTxt += '    </div>';
+            popinTxt += '    <form id="looq-form-email" action="#">';
+            popinTxt += '       <div class="looq-close"></div>';
+            popinTxt += '       <div class="looq-title">You want to send a looq ?</div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '            <input type="text" id="looq-emails" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
+            popinTxt += '       </div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '       </div>';
+            popinTxt += '    </form>';
             popinTxt += '</div>';
             
             hl.appendHTML(document.body, popinTxt);
@@ -232,14 +243,18 @@ var hl = {
         {
             document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-form-email').removeEventListener('submit', clickSubmit);
             hl.removePopin(document.querySelector('#looq-popin-email'));
             hl.unhighlight(document.body, hl.hexa);
         };
         
-        clickSubmit = function()
+        clickSubmit = function(e)
         {
+            e.preventDefault();
+            
             document.querySelector('#looq-popin-email .looq-close').removeEventListener('click', clickClose);
             document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-form-email').removeEventListener('submit', clickSubmit);
             
             var emails = document.querySelector('#looq-popin-email .email');
             if(regex.isNotEmpty(emails.value)) {
@@ -250,6 +265,9 @@ var hl = {
         
         document.querySelector('#looq-popin-email .looq-close').addEventListener('click', clickClose);
         document.querySelector('#looq-popin-email #looq-submit').addEventListener('click', clickSubmit);
+        document.querySelector('#looq-form-email').addEventListener('submit', clickSubmit);
+        
+        document.querySelector('#looq-emails').focus();
         
         return promise;
     },
@@ -292,17 +310,40 @@ var hl = {
         for(i in hashs) {
             json.url += (hashs[i].indexOf('looq') === -1 && hashs[i].replace(/ /g, '') !== '') ? '#' + hashs[i] : '';
         }
+
+        function close()
+        {
+            document.querySelector('.looq-result .looq-close').removeEventListener('click', close);
+            document.querySelector('.looq-result').className = document.querySelector('.looq-result').className.replace(/slideInDown/g, '') + ' slideOutUp';
+            //document.body.removeChild(document.querySelector('.looq-result'));
+        }
+        
+        i = 0;
+        function animationClose()
+        {
+            i++;
+            if(i === 500) {
+                close();
+            }else {
+                requestAnimationFrame(animationClose);
+            }
+        }
         
         util.ajax('POST', hl.looqSave, json)
             .then(function(result)
             {
+                var looqResult;
                 result = JSON.parse(result.response);
+                
+                requestAnimationFrame(animationClose);
+                
                 if(result.data.saved === true) {
-                    hl.appendHTML(document.body, '<div class="looq-result animated slideInDown">Your looq has been sent !<div class="looq-close"></div></div>');
-                    document.querySelector('.looq-result .looq-close').addEventListener('click', function(e)
-                    {
-                        document.body.removeChild(document.querySelector('.looq-result'));
-                    });
+                    if(document.querySelector('.looq-result') === null) {
+                        hl.appendHTML(document.body, '<div class="looq-result animated">Your looq has been sent !<div class="looq-close"></div></div>');
+                    }
+                    looqResult = document.querySelector('.looq-result');
+                    looqResult.className = looqResult.className.replace(/slideOutUp/g, '') + ' slideInDown';
+                    document.querySelector('.looq-result .looq-close').addEventListener('click', close);
                 }
             });
     },
