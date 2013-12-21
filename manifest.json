@@ -6,11 +6,13 @@
         "clipboardRead",
         "clipboardWrite",
         "contextMenus",
+        "notifications",
         "http://*/*",
         "https://*/*"
     ],
     "background": {
         "scripts": [
+            "js/socket.io.js",
             "js/background.js"
         ]
     },

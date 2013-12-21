@@ -9,6 +9,7 @@ if(v.tooluxversion !== details.version) {
 }
 */
 
+//chrome.tabs.executeScript(null, {file:"http://localhost:1337/socket.io/socket.io.js"});
 
 var background = {
 
@@ -26,13 +27,33 @@ var background = {
     
     openTabLogin: function()
     {
-        chrome.tabs.create({'url': 'http://looq.fr/'}, function (tab)
+        'use strict';
+        
+        //chrome.tabs.create({'url': 'http://looq.fr/'}, function (tab)
         //chrome.tabs.create({'url': 'http://looq.livedemo.fr/'}, function (tab)
         //chrome.tabs.create({'url': 'http://ic.adfab.fr/looq/'}, function (tab)
-        //chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
+        chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
         {
             // Tab opened.
         });
+    },
+    
+    notification: function(data)
+    {
+        'use strict';
+        
+        var notif = webkitNotifications.createNotification(
+            'icon100.png',  // icon url - can be relative
+            data.title,  // notification title
+            data.message
+        );
+        
+        notif.onclick = function(x)
+        {
+            chrome.tabs.create({'url': data.url});
+        };
+
+        notif.show();
     }
 };
 
@@ -53,5 +74,21 @@ chrome.extension.onRequest.addListener(
         if(request.msg === "login") {
             background.openTabLogin();
         }
+        
+        if(request.msg === "notif") {
+            background.notification(request.notif);
+        }
     }
 );
+
+var socket = io.connect('http://localhost:1337/looq');
+socket.on('connect', function (data)
+{
+    socket.emit('login', {name: 'nicolas.labbe@adfab.fr'});
+});
+  
+  
+socket.on('notification', function (data)
+{
+    background.notification(data);
+});
