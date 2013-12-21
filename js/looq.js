@@ -66,7 +66,7 @@ var hl = {
                     .then(function(e)
                     {
                         response = JSON.parse(e.response);
-                        objects = JSON.parse(response.data.looq.inner_html);
+                        objects = JSON.parse(response.data.looq.xpaths);
                         
                         for(i in objects) {
                             object = xp.get(objects[i].xpath);
@@ -76,7 +76,7 @@ var hl = {
                                 if(first === undefined) {
                                     first = object;
                                 }
-                                object[0].innerHTML = objects[i].inner;
+                                object[0].innerHTML = decodeURIComponent(objects[i].inner);
                             }
                         }
     
@@ -364,6 +364,21 @@ var hl = {
                 && all[i].className !== 'undefined') ? all[i].className + ' looq-highlight' : 'looq-highlight';
         }
         
+        var looqs = document.querySelectorAll('.looq-highlight'),
+            arrays = [];
+        for(i in looqs) {
+            if(typeof looqs[i] !== 'undefined' && typeof looqs[i] === 'object') {
+                if(!/looq-highlight/g.test(looqs[i].parentNode.className)
+                    && !util.inArray(looqs[i].parentNode, arrays)) {
+                    arrays.push(looqs[i].parentNode);
+                    xpath = xp.generate(looqs[i].parentNode);
+                    current = new nodeHl(xpath, encodeURIComponent(looqs[i].parentNode.innerHTML.replace(/"/g, "'")));
+                    nodesHl.push(current);
+                }
+            }
+        }
+        
+        /*
         for(i in nodes) {
             node = nodes[i];
             
@@ -382,9 +397,10 @@ var hl = {
                 }
             }
         }
+        */
         
         return {
-            inner_html: nodesHl,
+            xpaths: JSON.stringify(nodesHl),
             plain: plain
         };
     },
