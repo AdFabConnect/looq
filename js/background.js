@@ -29,10 +29,10 @@ var background = {
     {
         'use strict';
         
-        //chrome.tabs.create({'url': 'http://looq.fr/'}, function (tab)
+        chrome.tabs.create({'url': 'http://looq.fr/'}, function (tab)
         //chrome.tabs.create({'url': 'http://looq.livedemo.fr/'}, function (tab)
         //chrome.tabs.create({'url': 'http://ic.adfab.fr/looq/'}, function (tab)
-        chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
+        //chrome.tabs.create({'url': 'http://looq.server/'}, function (tab)
         {
             // Tab opened.
         });
