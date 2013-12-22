@@ -12,6 +12,8 @@
     ],
     "background": {
         "scripts": [
+            "js/promise.js",
+            "js/util.js",
             "js/socket.io.js",
             "js/background.js"
         ]
@@ -50,6 +52,10 @@
         "48": "icon48.png",
         "48": "icon100.png",
         "128": "icon128.png"
+    },
+    "browser_action": {
+        "default_icon": "icon.png",
+        "description": "Looq - send me something"
     },
     "web_accessible_resources": [
         "login.html",

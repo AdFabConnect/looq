@@ -85,9 +85,13 @@ var hl = {
                         height = (bounds2.top + bounds2.height) - bounds1.top;
                         
                         document.body.scrollTop = document.documentElement.scrollTop = bounds1.top - 110;
+                        
+                        chrome.extension.sendRequest({
+                            msg: "badges"
+                        });
                     });
             }
-        }, 100);
+        }, 1000);
     },
 
     /**
@@ -275,7 +279,7 @@ var hl = {
         document.querySelector('#looq-popin-email #looq-submit').addEventListener('click', clickSubmit);
         document.querySelector('#looq-form-email').addEventListener('submit', clickSubmit);
         
-        document.querySelector('#looq-emails').focus();
+        document.querySelector('#looq-message').focus();
         
         return promise;
     },

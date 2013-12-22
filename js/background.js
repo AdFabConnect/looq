@@ -56,8 +56,25 @@ var background = {
         {
             chrome.tabs.create({'url': data.url});
         };
+        
+        notif.onclose = function(x)
+        {
+            background.resetBadges();
+        };
 
         notif.show();
+    },
+    
+    resetBadges: function(data)
+    {
+        'use strict';
+
+        util.ajax('POST', 'http://' + severUrl + '/rest/missed')
+        .then(function(result)
+        {
+            result = JSON.parse(result.response);
+            chrome.browserAction.setBadgeText({ text : result.data.count + ""});
+        });
     }
 };
 
@@ -82,12 +99,17 @@ chrome.extension.onRequest.addListener(
         if(request.msg === "notif") {
             background.notification(request.notif);
         }
+        
+        if(request.msg === "badges") {
+            background.resetBadges();
+        }
     }
 );
 
 var socket = io.connect('http://' + nodeUrl + '/looq');
 socket.on('connect', function (data)
 {
+    background.resetBadges();
     socket.emit('login', {name: 'nicolas.labbe@adfab.fr'});
 });
   
