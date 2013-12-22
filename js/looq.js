@@ -134,9 +134,9 @@ var hl = {
             .then(function()
             {
                 hl.showPopinEmail()
-                    .then(function(emails)
+                    .then(function(obj)
                     {
-                        hl.send(selection, emails);
+                        hl.send(selection, obj.emails, obj.message);
                         window.getSelection().removeAllRanges();
                     });
             });
@@ -225,6 +225,9 @@ var hl = {
             popinTxt += '       <div class="looq-close"></div>';
             popinTxt += '       <div class="looq-title">You want to send a looq ?</div>';
             popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '            <input type="text" id="looq-message" class="message" name="message" placeholder="Message : Hey looq !" />';
+            popinTxt += '       </div>';
+            popinTxt += '       <div class="looq-form-row">';
             popinTxt += '            <input type="text" id="looq-emails" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
             popinTxt += '       </div>';
             popinTxt += '       <div class="looq-form-row">';
@@ -256,9 +259,14 @@ var hl = {
             document.querySelector('#looq-popin-email #looq-submit').removeEventListener('click', clickSubmit);
             document.querySelector('#looq-form-email').removeEventListener('submit', clickSubmit);
             
-            var emails = document.querySelector('#looq-popin-email .email');
+            var emails = document.querySelector('#looq-popin-email .email'),
+                message = document.querySelector('#looq-popin-email .message');
             if(regex.isNotEmpty(emails.value)) {
-                promise.resolve(emails.value);
+                promise.resolve(
+                {
+                    emails: emails.value,
+                    message: regex.isNotEmpty(message.value) ? message.value : 'hey looq'
+                })
                 hl.removePopin(document.querySelector('#looq-popin-email'));
             }
         };
@@ -300,10 +308,11 @@ var hl = {
         return promise;
     },
 
-    send:function(selection, emails)
+    send:function(selection, emails, message)
     {
         var json = selection, i;
         json.emails = emails;
+        json.message = message;
         json.url = top.location.origin + top.location.pathname + top.location.search;
         
         var hashs = top.location.hash.split('#')
