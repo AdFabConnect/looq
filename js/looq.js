@@ -1,7 +1,7 @@
-var severUrl = 'looq.fr';
+//var severUrl = 'looq.fr';
 //var severUrl = 'looq.livedemo.fr';
 //var severUrl = 'ic.adfab.fr/looq';
-//var severUrl = 'looq.server';
+var severUrl = 'looq.server';
 
 var nodeHl = function(xpath, inner, start, end)
 {
