@@ -9,17 +9,16 @@ if(v.tooluxversion !== details.version) {
 }
 */
 
-//chrome.tabs.executeScript(null, {file:"http://localhost:1337/socket.io/socket.io.js"});
-var severUrl = 'looq.fr', nodeUrl = '46.105.99.216:8080';
-//var severUrl = 'looq.livedemo.fr', nodeUrl = '127.0.0.1:8889';
-//var severUrl = 'ic.adfab.fr/looq', nodeUrl = '46.105.121.40:8889';
-//var severUrl = 'looq.server', nodeUrl = '127.0.0.1:8889';
-
 var background = {
+    socket: null,
+    autorized: false,
+    email: false,
 
     init: function()
     {
         'use strict';
+        
+        this.connectSocket();
     },
     
     send: function(e)
@@ -65,16 +64,77 @@ var background = {
         notif.show();
     },
     
-    resetBadges: function(data)
+    resetBadges: function()
     {
         'use strict';
-
-        util.ajax('POST', 'http://' + severUrl + '/rest/missed')
+        var self = this;
+        
+        if(this.autorized){
+            util.ajax('POST', 'http://' + severUrl + '/rest/missed')
+            .then(function(result)
+            {
+                result = JSON.parse(result.response);
+                if(regex.isNotNull(result.data) && regex.isNotNull(result.data.count)) {
+                    chrome.browserAction.setBadgeText({ text : result.data.count + ""});
+                }
+            });
+        }
+    },
+    
+    isAutorized: function()
+    {
+        var promise = new Promise(),
+            self = this,
+            result;
+        
+        util.ajax('POST', 'http://' + severUrl + '/rest/isAutorized')
         .then(function(result)
         {
             result = JSON.parse(result.response);
-            chrome.browserAction.setBadgeText({ text : result.data.count + ""});
+            self.autorized = result.authorized;
+            if(result.authorized) {
+                self.email = result.email;
+                self.resetBadges();
+                return promise.resolve(result);
+            }else {
+                self.email = null;
+                return promise.reject(result);
+            }
         });
+        
+        return promise;
+    },
+    
+    connectSocket: function()
+    {
+        'use strict';
+        
+        var self = this;
+        
+        if(!regex.isNotNull(this.socket)) {
+            
+            self.isAutorized()
+                .then(
+                // resolve
+                function()
+                {
+                    self.socket = io.connect('http://' + nodeUrl + '/looq');
+                    self.socket.on('connect', function (data)
+                    {
+                        self.socket.emit('login', {name: self.email});
+                    });
+                    
+                    self.socket.on('notification', function (data)
+                    {
+                        background.notification(data);
+                    });
+                },
+                // reject
+                function()
+                {
+                    this.socket = null;
+                });
+        }
     }
 };
 
@@ -103,18 +163,9 @@ chrome.extension.onRequest.addListener(
         if(request.msg === "badges") {
             background.resetBadges();
         }
+        
+        if(request.msg === "connect") {
+            background.connectSocket();
+        }
     }
 );
-
-var socket = io.connect('http://' + nodeUrl + '/looq');
-socket.on('connect', function (data)
-{
-    background.resetBadges();
-    socket.emit('login', {name: 'nicolas.labbe@adfab.fr'});
-});
-  
-  
-socket.on('notification', function (data)
-{
-    background.notification(data);
-});

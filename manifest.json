@@ -12,6 +12,7 @@
     ],
     "background": {
         "scripts": [
+            "js/config.js",
             "js/promise.js",
             "js/util.js",
             "js/socket.io.js",
@@ -29,6 +30,7 @@
                 "css/animate-custom.css"
             ],
             "js": [
+                "js/config.js",
                 "js/promise.js",
                 "js/xpath.js",
                 "js/util.js",
@@ -55,9 +57,11 @@
     },
     "browser_action": {
         "default_icon": "icon.png",
-        "description": "Looq - send me something"
+        "description": "Looq - send me something",
+    	"default_popup": "popup.html"
     },
     "web_accessible_resources": [
+        "popup.css",
         "login.html",
         "img/looq-close.png"
     ],

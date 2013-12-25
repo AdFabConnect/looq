@@ -1,0 +1,43 @@
+body {
+  font-family: Arial;
+  
+  #looqs-wrapper {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    width: 400px;
+    height: 300px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    
+    li {
+      opacity: 0.4;
+      
+      &.notMissed {
+        opacity: 1;
+      }
+    }
+    
+    a {
+      font-weight: bold;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin: 0px 0px 10px 0px;
+      line-height: 16px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #2d2d31;
+      text-overflow: ellipsis;
+      width: 390px;
+      display: block;
+      
+      &.highlight {
+        margin-bottom: 10px;
+        font-weight: normal;
+        background-color: #f8f670;
+        font-style: italic;
+      }
+    }
+  }
+}

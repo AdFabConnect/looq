@@ -1,8 +1,3 @@
-var severUrl = 'looq.fr';
-//var severUrl = 'looq.livedemo.fr';
-//var severUrl = 'ic.adfab.fr/looq';
-//var severUrl = 'looq.server';
-
 var nodeHl = function(xpath, inner, start, end)
 {
     'use strict';
@@ -68,27 +63,30 @@ var hl = {
                         response = JSON.parse(e.response);
                         objects = JSON.parse(response.data.looq.xpaths);
                         
-                        for(i in objects) {
-                            object = xp.get(objects[i].xpath);
+                        if(objects !== null) {
                             
-                            if(typeof object !== 'undefined' && object.length === 1
-                                    && typeof object[0] !== 'undefined') {
-                                if(first === undefined) {
-                                    first = object;
+                            for(i in objects) {
+                                object = xp.get(objects[i].xpath);
+                                
+                                if(typeof object !== 'undefined' && object.length === 1
+                                        && typeof object[0] !== 'undefined') {
+                                    if(first === undefined) {
+                                        first = object;
+                                    }
+                                    object[0].innerHTML = decodeURIComponent(objects[i].inner);
                                 }
-                                object[0].innerHTML = decodeURIComponent(objects[i].inner);
                             }
+        
+                            bounds1 = first[0].getBoundingClientRect();
+                            bounds2 = object[0].getBoundingClientRect();
+                            height = (bounds2.top + bounds2.height) - bounds1.top;
+                            
+                            document.body.scrollTop = document.documentElement.scrollTop = bounds1.top - 110;
+                            
+                            chrome.extension.sendRequest({
+                                msg: "badges"
+                            });
                         }
-    
-                        bounds1 = first[0].getBoundingClientRect();
-                        bounds2 = object[0].getBoundingClientRect();
-                        height = (bounds2.top + bounds2.height) - bounds1.top;
-                        
-                        document.body.scrollTop = document.documentElement.scrollTop = bounds1.top - 110;
-                        
-                        chrome.extension.sendRequest({
-                            msg: "badges"
-                        });
                     });
             }
         }, 1000);
@@ -114,6 +112,9 @@ var hl = {
                                     {
                                         if(response.authorized !== 'undefined' && response.authorized) {
                                             // AUTHORIZED
+                                            chrome.extension.sendRequest({
+                                                msg: "connect"
+                                            });
                                             promise.resolve();
                                         }
                                     });

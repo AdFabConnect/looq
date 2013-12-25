@@ -22,7 +22,6 @@ util = {
                         params += '&';
                     }
                     params += i +'[' + j + ']=' + json[i][j];
-                    console.log(json[i][j])
                 }
             }else {
                 params += i +'=' + encodeURIComponent(json[i]);
@@ -48,7 +47,7 @@ util = {
         xmlhttp.open(type, url, true);
         xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         xmlhttp.send(params);
-        
+
         return promise;
     },
     
@@ -67,10 +66,30 @@ util = {
             if(haystack[i] == needle) return true;
         }
         return false;
+    },
+    
+    appendHTML:function (el, str)
+    {
+        var div = document.createElement('div');
+        div.innerHTML = str;
+        while (div.children.length > 0) {
+            el.appendChild(div.children[0]);
+        }
     }
 };
 
 regex = {
+        
+    isNotNull: function(str)
+    {
+        if(typeof str === 'string') {
+            return regex.isNotEmpty(str);
+        }else if(typeof str === undefined || str === null) {
+            return false;
+        }else {
+            return true;
+        }
+    },
     
     isNotEmpty: function(str)
     {
