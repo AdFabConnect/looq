@@ -46,7 +46,7 @@ var background = {
         'use strict';
         
         var notif = webkitNotifications.createNotification(
-            'icon48.png',  // icon url - can be relative
+            'icon96.png',  // icon url - can be relative
             data.title,  // notification title
             data.message
         );
