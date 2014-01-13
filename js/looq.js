@@ -344,22 +344,22 @@ var hl = {
         }
         
         util.ajax('POST', hl.looqSave, json)
-            .then(function(result)
-            {
-                var looqResult;
-                result = JSON.parse(result.response);
-                
-                requestAnimationFrame(animationClose);
-                
-                if(result.data.saved === true) {
-                    if(document.querySelector('.looq-result') === null) {
-                        hl.appendHTML(document.body, '<div class="looq-result animated">Your looq has been sent !<div class="looq-close"></div></div>');
-                    }
-                    looqResult = document.querySelector('.looq-result');
-                    looqResult.className = looqResult.className.replace(/slideOutUp/g, '') + ' slideInDown';
-                    document.querySelector('.looq-result .looq-close').addEventListener('click', close);
+        .then(function(result)
+        {
+            var looqResult;
+            result = JSON.parse(result.response);
+            
+            requestAnimationFrame(animationClose);
+            
+            if(result.data.saved === true) {
+                if(document.querySelector('.looq-result') === null) {
+                    hl.appendHTML(document.body, '<div class="looq-result animated">Your looq has been sent !<div class="looq-close"></div></div>');
                 }
-            });
+                looqResult = document.querySelector('.looq-result');
+                looqResult.className = looqResult.className.replace(/slideOutUp/g, '') + ' slideInDown';
+                document.querySelector('.looq-result .looq-close').addEventListener('click', close);
+            }
+        });
     },
 
     up:function()

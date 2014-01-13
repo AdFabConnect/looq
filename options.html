@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Looq - options</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0" />
+        <link rel="stylesheet" href="css/options.css" />
+    </head>
+    <body>
+    	<h1>Looq options</h1>
+    	<p>
+			<label for="option-email">
+				<input id="option-email" name="notif" type="radio" value="email">
+				<span>Receive looq by email</span>
+			</label>
+			<label for="option-notif">
+				<input id="option-notif" name="notif" type="radio" value="notif">
+				<span>Receive looq by notification</span>
+			</label>
+			<label for="option-both">
+				<input id="option-all" name="notif" type="radio" value="all">
+				<span>Receive both (notification and email)</span>
+			</label>
+			<label for="option-email">
+				<input id="option-none" name="notif" type="radio" value="none">
+				<span>Receive no notifications</span>
+			</label>
+		</p>
+		
+    	<p>
+			<button id="save">Save</button>
+		</p>
+		
+		<script src="js/options.js"></script>
+	</body>
+</html>

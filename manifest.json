@@ -1,10 +1,11 @@
 {
     "name": "looq",
-    "version": "2.36",
+    "version": "2.4",
     "permissions": [
         "tabs",
         "clipboardRead",
         "clipboardWrite",
+        "storage",
         "contextMenus",
         "notifications",
         "http://*/*",
