@@ -17,7 +17,7 @@ var popin = {
             popinTxt += '            <input type="text" id="looq-emails" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
             popinTxt += '       </div>';
             popinTxt += '       <div class="looq-form-row">';
-            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
@@ -75,7 +75,7 @@ var popin = {
             popinTxt = '<div id="looq-popin-login" class="looq-popin animated slideInRight">';
             popinTxt += '    <form id="looq-form-login" action="#">';
             popinTxt += '       <div class="looq-close"></div>';
-            popinTxt += '       <div class="looq-title">Connexion</div>';
+            popinTxt += '       <div class="looq-title">Connection</div>';
             popinTxt += '       <div class="looq-form-row">';
             popinTxt += '           <input type="text" id="looq-email" class="email" name="email" placeholder="Email" />';
             popinTxt += '       </div>';
@@ -83,7 +83,7 @@ var popin = {
             popinTxt += '           <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
             popinTxt += '        </div>';
             popinTxt += '       <div class="looq-form-row">';
-            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
