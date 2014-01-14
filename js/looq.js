@@ -170,7 +170,7 @@ var hl = {
             popinTxt += '           <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
             popinTxt += '        </div>';
             popinTxt += '       <div class="looq-form-row">';
-            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
@@ -236,7 +236,7 @@ var hl = {
             popinTxt += '            <input type="text" id="looq-emails" class="email" name="email" placeholder="Insert mails and separate them with commas" />';
             popinTxt += '       </div>';
             popinTxt += '       <div class="looq-form-row">';
-            popinTxt += '           <input type="submit" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
