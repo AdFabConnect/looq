@@ -107,7 +107,7 @@ var hl = {
                     hl.showPopinLogin()
                         .then(function(obj)
                             {
-                                hl.login(obj.email, obj.password)
+                                hl.login(obj.email, obj.password, obj.register, obj.nickname)
                                     .then(function(response)
                                     {
                                         if(response.authorized !== 'undefined' && response.authorized) {
@@ -156,13 +156,17 @@ var hl = {
     showPopinLogin:function()
     {
         var promise = new Promise(),
-            popinTxt = '', clickClose, clickSubmit;
+            connectBtn, registerBtn, popinTxt = '', clickClose, clickSubmit;
 
         if(document.querySelector('#looq-popin-login') === null) {
             popinTxt = '<div id="looq-popin-login" class="looq-popin animated slideInRight">';
             popinTxt += '    <form id="looq-form-login" action="#">';
             popinTxt += '       <div class="looq-close"></div>';
-            popinTxt += '       <div class="looq-title">Connexion</div>';
+            popinTxt += '       <div class="looq-title connection-title">Connection</div>';
+            popinTxt += '       <div class="looq-title registration-title">Registration</div>';
+            popinTxt += '       <div class="looq-form-row nickname-row">';
+            popinTxt += '           <input type="text" id="looq-nickname" class="nickname" name="nickname" placeholder="Nickname" />';
+            popinTxt += '       </div>';
             popinTxt += '       <div class="looq-form-row">';
             popinTxt += '           <input type="text" id="looq-email" class="email" name="email" placeholder="Email" />';
             popinTxt += '       </div>';
@@ -170,7 +174,12 @@ var hl = {
             popinTxt += '           <input type="password" id="looq-password" class="email" name="email" placeholder="Password" />';
             popinTxt += '        </div>';
             popinTxt += '       <div class="looq-form-row">';
-            popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '           <a href="#" id="register">register</a>';
+            popinTxt += '           <a href="#" id="connect">connect</a>';
+            popinTxt += '       </div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <input type="submit" value="register" id="looq-register" class="connect" name="register" placeholder="register" />';
+            popinTxt += '           <input type="submit" value="connect" id="looq-connect" class="connect" name="connect" placeholder="connect" />';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
@@ -180,6 +189,9 @@ var hl = {
             util.removeClass(document.querySelector('#looq-popin-login'), 'slideOutLeft');
             util.addClass(document.querySelector('#looq-popin-login'), 'slideInRight');
         }
+
+        connectBtn = document.querySelector('#looq-popin-login #connect');
+        registerBtn = document.querySelector('#looq-popin-login #register');
         
         clickClose = function(e)
         {
@@ -194,24 +206,74 @@ var hl = {
         {
             e.preventDefault();
             
-            document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
-            document.querySelector('#looq-popin-login #looq-submit').removeEventListener('click', clickSubmit);
-            document.querySelector('#looq-form-login').removeEventListener('submit', clickSubmit);
-            
             var email = document.querySelector('#looq-popin-login #looq-email'),
+                nickname = document.querySelector('#looq-popin-login #looq-nickname'),
                 password = document.querySelector('#looq-popin-login #looq-password');
             
-            if(regex.isNotEmpty(email.value) && regex.isNotEmpty(password.value)) {
-                promise.resolve({
-                    email: email.value,
-                    password: password.value
-                });
-                hl.removePopin(document.querySelector('#looq-popin-login'));
+            document.querySelector('#looq-popin-login .looq-close').removeEventListener('click', clickClose);
+            document.querySelector('#looq-popin-login #looq-register').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-popin-login #looq-connect').removeEventListener('click', clickSubmit);
+            document.querySelector('#looq-form-login').removeEventListener('submit', clickSubmit);
+
+            if(registerBtn.style.display !== 'none' || registerBtn.style.display === '') {
+                if(regex.isNotEmpty(email.value) && regex.isNotEmpty(password.value)) {
+                    promise.resolve({
+                        email: email.value,
+                        nickname: nickname.value,
+                        password: password.value,
+                        register: false,
+                        nickname: nickname
+                    });
+                    hl.removePopin(document.querySelector('#looq-popin-login'));
+                }
+            }else {
+                if(regex.isNotEmpty(email.value) && regex.isNotEmpty(password.value)) {
+                    promise.resolve({
+                        email: email.value,
+                        nickname: nickname.value,
+                        password: password.value,
+                        register: true,
+                        nickname: nickname.value
+                    });
+                    hl.removePopin(document.querySelector('#looq-popin-login'));
+                }
             }
         };
         
+        toogleView = function(e)
+        {
+            e.preventDefault();
+            
+            if(registerBtn.style.display !== 'none') {
+                connectBtn.style.display = 'block';
+                registerBtn.style.display = 'none';
+
+                document.querySelector('#looq-popin-login .connection-title').style.display = 'none';
+                document.querySelector('#looq-popin-login .registration-title').style.display = 'block';
+
+                document.querySelector('#looq-popin-login .nickname-row').style.display = 'block';
+
+                document.querySelector('#looq-popin-login #looq-register').style.display = 'block';
+                document.querySelector('#looq-popin-login #looq-connect').style.display = 'none';
+            }else {
+                connectBtn.style.display = 'none';
+                registerBtn.style.display = 'block';
+
+                document.querySelector('#looq-popin-login .connection-title').style.display = 'block';
+                document.querySelector('#looq-popin-login .registration-title').style.display = 'none';
+
+                document.querySelector('#looq-popin-login .nickname-row').style.display = 'none';
+                
+                document.querySelector('#looq-popin-login #looq-register').style.display = 'none';
+                document.querySelector('#looq-popin-login #looq-connect').style.display = 'block';
+            }
+        };
+
+        document.querySelector('#looq-popin-login #connect').addEventListener('click', toogleView);
+        document.querySelector('#looq-popin-login #register').addEventListener('click', toogleView);
         document.querySelector('#looq-popin-login .looq-close').addEventListener('click', clickClose);
-        document.querySelector('#looq-popin-login #looq-submit').addEventListener('click', clickSubmit);
+        document.querySelector('#looq-popin-login #looq-register').addEventListener('click', clickSubmit);
+        document.querySelector('#looq-popin-login #looq-connect').addEventListener('click', clickSubmit);
         document.querySelector('#looq-form-login').addEventListener('submit', clickSubmit);
         
         document.querySelector('#looq-email').focus();
@@ -294,12 +356,14 @@ var hl = {
         }
     },
 
-    login:function(email, password)
+    login:function(email, password, register, nickname)
     {
         var json = {
             email: email,
             password: password,
-            url: top.location.href
+            url: top.location.href,
+            register: register,
+            nickname: nickname
         },
         promise = new Promise();
         

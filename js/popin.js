@@ -75,7 +75,11 @@ var popin = {
             popinTxt = '<div id="looq-popin-login" class="looq-popin animated slideInRight">';
             popinTxt += '    <form id="looq-form-login" action="#">';
             popinTxt += '       <div class="looq-close"></div>';
-            popinTxt += '       <div class="looq-title">Connection</div>';
+            popinTxt += '       <div class="looq-title connection-title">Connection</div>';
+            popinTxt += '       <div class="looq-title registration-title">Registration</div>';
+            popinTxt += '       <div class="looq-form-row nickname">';
+            popinTxt += '           <input type="text" id="looq-nickname" class="nickname" name="nickname" placeholder="Nickname" />';
+            popinTxt += '       </div>';
             popinTxt += '       <div class="looq-form-row">';
             popinTxt += '           <input type="text" id="looq-email" class="email" name="email" placeholder="Email" />';
             popinTxt += '       </div>';
@@ -84,6 +88,10 @@ var popin = {
             popinTxt += '        </div>';
             popinTxt += '       <div class="looq-form-row">';
             popinTxt += '           <input type="submit" value="connect" id="looq-submit" class="password" name="password" placeholder="password" />';
+            popinTxt += '       </div>';
+            popinTxt += '       <div class="looq-form-row">';
+            popinTxt += '           <a href="#" id="register">register</a>';
+            popinTxt += '           <a href="#" id="connect">connect</a>';
             popinTxt += '       </div>';
             popinTxt += '    </form>';
             popinTxt += '</div>';
