@@ -1,6 +1,6 @@
 {
     "name": "looq",
-    "version": "2.41",
+    "version": "2.43",
     "permissions": [
         "tabs",
         "clipboardRead",
