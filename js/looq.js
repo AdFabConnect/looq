@@ -438,8 +438,10 @@ var hl = {
         
         var all = document.querySelectorAll('[style="background-color: rgb(254, 246, 112);"]'), i;
         for(i in all) {
-            all[i].className = (typeof all[i].className !== 'undefined'
-                && all[i].className !== 'undefined') ? all[i].className + ' looq-highlight' : 'looq-highlight';
+            if(typeof all[i] === 'object') {
+                all[i].className = (typeof all[i].className !== 'undefined'
+                    && all[i].className !== 'undefined') ? all[i].className + ' looq-highlight' : 'looq-highlight';
+            }
         }
         
         var looqs = document.querySelectorAll('.looq-highlight'),
