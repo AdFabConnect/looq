@@ -1,6 +1,6 @@
 {
     "name": "looq",
-    "version": "2.43",
+    "version": "2.50",
     "permissions": [
         "tabs",
         "clipboardRead",
@@ -13,11 +13,7 @@
     ],
     "background": {
         "scripts": [
-            "js/config.js",
-            "js/promise.js",
-            "js/util.js",
-            "js/socket.io.js",
-            "js/background.js"
+            "js/background.all.js"
         ]
     },
     "content_scripts": [
@@ -27,17 +23,10 @@
                 "https://*/*"
             ],
             "css": [
-                "css/style.css",
-                "css/animate-custom.css"
+                "css/style.css"
             ],
             "js": [
-                "js/config.js",
-                "js/promise.js",
-                "js/xpath.js",
-                "js/util.js",
-                "js/color.js",
-                "js/range.js",
-                "js/looq.js"
+                "js/front.all.js"
             ],
             "run_at": "document_end"
         }
@@ -59,10 +48,10 @@
     "browser_action": {
         "default_icon": "icon.png",
         "description": "Looq - send me something",
-    	"default_popup": "popup.html"
+        "default_popup": "popup.html"
     },
     "web_accessible_resources": [
-        "popup.css",
+        "css/popup.css",
         "login.html",
         "img/looq-close.png"
     ],

@@ -45,11 +45,32 @@ var background = {
     {
         'use strict';
         
-        var notif = webkitNotifications.createNotification(
-            'icon96.png',  // icon url - can be relative
-            data.title,  // notification title
-            data.message
+        var notif = new Notification(
+            data.title,
+            {
+                body: "",
+                dir: "auto",
+                icon: "icon96.png",
+                tag: ""
+            }
         );
+        
+        // var notif = new Notification({
+        //     'icon96.png',  // icon url - can be relative
+        //     data.title,  // notification title
+        //     data.message
+
+        //     body: "",
+        //     dir: "auto",
+        //     icon: "",
+        //     lang: "",
+        //     onclick: null,
+        //     onclose: null,
+        //     onerror: null,
+        //     onshow: null,
+        //     tag: "",
+        //     title: "test"
+        // });
         
         notif.onclick = function(x)
         {
@@ -118,20 +139,25 @@ var background = {
                 // resolve
                 function()
                 {
+                    console.log('http://' + nodeUrl + '/looq');
+                    
                     self.socket = io.connect('http://' + nodeUrl + '/looq');
                     self.socket.on('connect', function (data)
                     {
+                        console.log('connect');
                         self.socket.emit('login', {name: self.email});
                     });
                     
                     self.socket.on('notification', function (data)
                     {
+                        console.log('notification');
                         background.notification(data);
                     });
                 },
                 // reject
                 function()
                 {
+                    console.log('reject')
                     this.socket = null;
                 });
         }
